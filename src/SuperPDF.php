@@ -58,6 +58,38 @@ class SuperPDF
     }
 
     /**
+     * @brief Extract a text at a rectangle coordinates
+     * @param array $coordinates An array of coordinates with "x", "y", "h" and "w" keys
+     * @param int $page The page number where to read
+     * @param int $dpi The dpi of the PDF rendering
+     * @return string The extracted text
+     *
+     * You need pdftotext in your PATH to use this function
+     */
+    public function extractText(array $coordinates, int $page = 1, int $dpi = 72): string
+    {
+        $tmpFile = tempnam(sys_get_temp_dir(), "superpdf");
+
+        // Command line build
+        $cmd = "pdftotext";
+        $cmd .= " -x " . ($coordinates["x"] ?? 0);
+        $cmd .= " -y " . ($coordinates["y"] ?? 0);
+        $cmd .= " -W " . ($coordinates["w"] ?? 0);
+        $cmd .= " -H " . ($coordinates["h"] ?? 0);
+        $cmd .= " -r " . $dpi;
+        $cmd .= " -f " . $page;
+        $cmd .= " -l " . $page;
+        $cmd .= " " . $this->file;
+        $cmd .= " " . $tmpFile;
+
+        exec($cmd);
+        $res = trim(file_get_contents($tmpFile), " \t\n\r\0\x0B\x0C");
+        unlink($tmpFile);
+
+        return $res;
+    }
+
+    /**
      * @brief The constructor
      * @param string $filepath The path to the file
      * @return void

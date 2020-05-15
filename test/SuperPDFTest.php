@@ -64,4 +64,24 @@ class SuperPDF extends TestCase
         $pdf = new SuperPDFSuperPDF(__DIR__ . DIRECTORY_SEPARATOR . "pdf" . DIRECTORY_SEPARATOR . "02.pdf");
         $this->assertEquals(2, $pdf->getPageCount());
     }
+
+    /**
+     * @brief Tests the extract text function
+     * @return void
+     * @throws ExpectationFailedException
+     */
+    public function testExtractText()
+    {
+        $pdf = new SuperPDFSuperPDF(__DIR__ . DIRECTORY_SEPARATOR . "pdf" . DIRECTORY_SEPARATOR . "01.pdf");
+        $this->assertEquals("TEST", $pdf->extractText(["x" => 176, "y" => 257, "w" => 101, "h" => 40]));
+        $this->assertEquals("LOREM", $pdf->extractText(["x" => 423, "y" => 115, "w" => 40, "h" => 14]));
+        $this->assertEquals("IPSUM", $pdf->extractText(["x" => 435, "y" => 353, "w" => 64, "h" => 20]));
+        $this->assertEquals("SIT", $pdf->extractText(["x" => 69, "y" => 485, "w" => 32, "h" => 20]));
+        $this->assertEquals("DOLOR", $pdf->extractText(["x" => 365, "y" => 468, "w" => 143, "h" => 38]));
+        $this->assertEquals("AMET", $pdf->extractText(["x" => 265, "y" => 600, "w" => 27, "h" => 11]));
+
+        $pdf = new SuperPDFSuperPDF(__DIR__ . DIRECTORY_SEPARATOR . "pdf" . DIRECTORY_SEPARATOR . "02.pdf");
+        $this->assertEquals("PAGE 1", $pdf->extractText(["x" => 175, "y" => 307, "w" => 39, "h" => 13]));
+        $this->assertEquals("PAGE 2", $pdf->extractText(["x" => 278, "y" => 424, "w" => 42, "h" => 13], 2));
+    }
 }
