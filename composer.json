@@ -12,7 +12,8 @@
     "minimum-stability": "stable",
     "require": {
         "setasign/fpdi": "^2.3",
-        "setasign/fpdf": "^1.8"
+        "setasign/fpdf": "^1.8",
+        "tecnickcom/tcpdf": "^6.3"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.1",

@@ -11,6 +11,7 @@ use setasign\Fpdi\PdfParser\Filter\FilterException;
 use setasign\Fpdi\PdfParser\PdfParserException;
 use setasign\Fpdi\PdfParser\Type\PdfTypeException;
 use setasign\Fpdi\PdfReader\PdfReaderException;
+use setasign\Fpdi\Tcpdf\Fpdi as TcpdfFpdi;
 
 /*
 SuperPDF Library
@@ -104,7 +105,7 @@ class SuperPDF
 
     /**
      * @brief Adds the Nth page to the document
-     * @param Fpdi $pdf The Fpdi document
+     * @param mixed $pdf The Fpdi document
      * @param int $page The page number
      * @return void
      * @throws CrossReferenceException
@@ -115,7 +116,7 @@ class SuperPDF
      * @throws InvalidArgumentException
      * @throws BadMethodCallException
      */
-    protected function addPage(\setasign\Fpdi\Fpdi $pdf, int $page): void
+    protected function addPage($pdf, int $page): void
     {
         $tplidx = $pdf->importPage($page);
         $format = $pdf->getTemplateSize($tplidx);
@@ -221,7 +222,7 @@ class SuperPDF
 
     /**
      * @brief Saves the document
-     * @param Fpdi $pdf The document
+     * @param mixed $pdf The document
      * @param string $file The output file path. If empty, the original file will be overwriten
      * @return void
      * @throws Exception
@@ -232,6 +233,22 @@ class SuperPDF
             $pdf->Output("F", $this->file);
         } else {
             $pdf->Output("F", $file);
+        }
+    }
+
+    /**
+     * @brief Saves the document (TCPDF version)
+     * @param TcpdfFpdi $pdf The document
+     * @param string $file The output file path. If empty, the original file will be overwriten
+     * @return void
+     * @throws Exception
+     */
+    protected function saveToWithTcpdf(\setasign\Fpdi\Tcpdf\Fpdi $pdf, string $file): void
+    {
+        if (empty($file)) {
+            $pdf->Output($this->file, "F");
+        } else {
+            $pdf->Output($file, "F");
         }
     }
 
@@ -302,7 +319,7 @@ class SuperPDF
     /**
      * @param Adds a background to the document
      * @param string $backgroundPdf The path to the background PDF file
-     * @param int $location The page number or one
+     * @param int $location The page number or one of the class constants
      * @param string $output The output file path. If empty, the original file will be overwriten
      * @return void
      * @throws PdfParserException
@@ -355,6 +372,22 @@ class SuperPDF
         $pdf->Write(1, $text);
     }
 
+    /**
+     * @brief Write text on the document
+     * @param string $text The text to write
+     * @param array $params An array with parameters
+     * @param int $location The page number or one of the class constants
+     * @param string $output The output file path. If empty, the original file will be overwriten
+     * @return void
+     * @throws PdfParserException
+     * @throws CrossReferenceException
+     * @throws FilterException
+     * @throws PdfTypeException
+     * @throws PdfReaderException
+     * @throws InvalidArgumentException
+     * @throws BadMethodCallException
+     * @throws Exception
+     */
     public function writeText(string $text, array $params, int $location, string $output = ""): void
     {
         $pdf = new \setasign\Fpdi\Fpdi();
@@ -377,6 +410,100 @@ class SuperPDF
         }
 
         $this->saveTo($pdf, $output);
+    }
+
+    /**
+     * @brief Applies a matrix image (GIF, PNG, JPG)
+     * @param Fpdi $pdf The Fpdi document
+     * @param string $imagePath The path of the image file
+     * @param array $params An array of parameters
+     * @return void
+     * @throws Exception
+     */
+    protected function applyMatrixImage(\setasign\Fpdi\Fpdi $pdf, string $imagePath, array $params): void
+    {
+        $pdf->Image($imagePath, ($params["x"] ?? 0), ($params["y"] ?? 0), ($params["w"] ?? 0), ($params["h"] ?? 0));
+    }
+
+    /**
+     * @brief Applies a vector image (SVG)
+     * @param TcpdfFpdi $pdf The Fpdi document
+     * @param string $imagePath The path of the image file
+     * @param array $params An array of parameters
+     * @return void
+     * @throws Exception
+     */
+    protected function applyVectorImage(\setasign\Fpdi\Tcpdf\Fpdi $pdf, string $imagePath, array $params): void
+    {
+        $pdf->ImageSVG($imagePath, ($params["x"] ?? 0), ($params["y"] ?? 0), ($params["w"] ?? 0), ($params["h"] ?? 0));
+    }
+
+    /**
+     * @brief Auto selects the appropriate apply function
+     * @param mixed $pdf The Fpdi document
+     * @param string $imagePath The path of the image file
+     * @param array $params An array of parameters
+     * @return void
+     * @throws Exception
+     */
+    protected function applyImage($pdf, string $imagePath, array $params): void
+    {
+        if (strtolower(pathinfo($imagePath, PATHINFO_EXTENSION)) == "svg") {
+            $this->applyVectorImage($pdf, $imagePath, $params);
+        } else {
+            $this->applyMatrixImage($pdf, $imagePath, $params);
+        }
+    }
+
+    /**
+     * @brief Draw an image on the document
+     * @param string $imagePath The path of the image file
+     * @param array $params An array of parameters
+     * @param int $location The page number or one of the class constants
+     * @param string $output The output file path. If empty, the original file will be overwriten
+     * @return void
+     * @throws PdfParserException
+     * @throws CrossReferenceException
+     * @throws FilterException
+     * @throws PdfTypeException
+     * @throws PdfReaderException
+     * @throws InvalidArgumentException
+     * @throws BadMethodCallException
+     * @throws Exception
+     */
+    public function drawImage(string $imagePath, array $params, int $location, string $output = ""): void
+    {
+        if (strtolower(pathinfo($imagePath, PATHINFO_EXTENSION)) == "svg") {
+            $pdf = new \setasign\Fpdi\Tcpdf\Fpdi();
+            $pdf->setPrintHeader(false);
+            $pdf->setPrintFooter(false);
+        } else {
+            $pdf = new \setasign\Fpdi\Fpdi();
+        }
+
+        $sourcePageCount = $pdf->setSourceFile($this->file);
+
+        for ($i = 1; ($i <= $sourcePageCount); $i++) {
+            $this->addPage($pdf, $i);
+
+            if ($i == $location) {
+                $this->applyImage($pdf, $imagePath, $params);
+            } elseif ($location == self::ON_EACH_PAGE) {
+                $this->applyImage($pdf, $imagePath, $params);
+            } elseif ($location == self::ON_ODD_PAGES && $i % 2 == 1) {
+                $this->applyImage($pdf, $imagePath, $params);
+            } elseif ($location == self::ON_EVEN_PAGES && $i % 2 == 0) {
+                $this->applyImage($pdf, $imagePath, $params);
+            } elseif ($location == self::ON_LAST_PAGE && $i == $sourcePageCount) {
+                $this->applyImage($pdf, $imagePath, $params);
+            }
+        }
+
+        if (strtolower(pathinfo($imagePath, PATHINFO_EXTENSION)) == "svg") {
+            $this->saveToWithTcpdf($pdf, $output);
+        } else {
+            $this->saveTo($pdf, $output);
+        }
     }
 
     /**

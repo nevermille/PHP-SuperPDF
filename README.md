@@ -90,3 +90,52 @@ Like before, if you don't want to overwrite the document, you can give an output
 ```php
 $pdf->addBackground("/path/to/background/pdf", 5, "/path/to/output");
 ```
+
+### Write text
+
+If you want to write som text on the document:
+
+```php
+$params = [
+    "font" => "arial", // Font family
+    "color" => ["r" => 30, "g" => 30, "b" => 30], // Font color
+    "pos" => ["x" => 10, "y" => 20], // Text position
+    "size" => 15 // Font size
+];
+
+$pdf->writeText("Some text", $params, 5); // Writes a text on page 5
+$pdf->writeText("Some text", $params, SuperPDF::ON_LAST_PAGE); // Writes a text on last page
+$pdf->writeText("Some text", $params, SuperPDF::ON_ODD_PAGES); // Writes a text on odd pages
+$pdf->writeText("Some text", $params, SuperPDF::ON_EVEN_PAGES); // Writes a text on even pages
+$pdf->writeText("Some text", $params, SuperPDF::ON_EACH_PAGE); // Writes a text on each page
+```
+
+Like before, if you don't want to overwrite the document, you can give an output path:
+
+```php
+$pdf->writeText("Some text", $params, 5, "/path/to/output");
+```
+
+### Draw an image
+
+If you want to draw an image (PNG, JPG, GIF or SVG) on the document:
+
+```php
+$params = [
+    "x" => 30, // The X position
+    "y" => 50, // The Y position
+    "w" => 60 // The width (you can also use h)
+];
+
+$pdf->drawImage("/path/to/image/file", $params, 5); // Draws an image on page 5
+$pdf->drawImage("/path/to/image/file", $params, SuperPDF::ON_LAST_PAGE); // Draws an image on last page
+$pdf->drawImage("/path/to/image/file", $params, SuperPDF::ON_ODD_PAGES); // Draws an image on odd pages
+$pdf->drawImage("/path/to/image/file", $params, SuperPDF::ON_EVEN_PAGES); // Draws an image on even pages
+$pdf->drawImage("/path/to/image/file", $params, SuperPDF::ON_EACH_PAGE); // Draws an image on each page
+```
+
+Like before, if you don't want to overwrite the document, you can give an output path:
+
+```php
+$pdf->drawImage("/path/to/image/file", $params, 5, "/path/to/output");
+```
