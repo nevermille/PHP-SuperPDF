@@ -339,6 +339,47 @@ class SuperPDF
     }
 
     /**
+     * @brief Prints the text on the current page
+     * @param Fpdi $pdf The Fpdi document
+     * @param string $text The text to print
+     * @param array $params The parameters
+     * @return void
+     * @throws Exception
+     */
+    protected function printText(\setasign\Fpdi\Fpdi $pdf, string $text, array $params): void
+    {
+        $pdf->SetFont(($params["font"] ?? "sans-serif"), ($params["style"] ?? ""));
+        $pdf->SetTextColor(($params["color"]["r"] ?? 0), ($params["color"]["g"] ?? 0), ($params["color"]["b"] ?? 0));
+        $pdf->SetFontSize(($params["size"] ?? 12));
+        $pdf->SetXY(($params["pos"]["x"] ?? 0), ($params["pos"]["y"] ?? 0));
+        $pdf->Write(1, $text);
+    }
+
+    public function writeText(string $text, array $params, int $location, string $output = ""): void
+    {
+        $pdf = new \setasign\Fpdi\Fpdi();
+        $sourcePageCount = $pdf->setSourceFile($this->file);
+
+        for ($i = 1; ($i <= $sourcePageCount); $i++) {
+            $this->addPage($pdf, $i);
+
+            if ($i == $location) {
+                $this->printText($pdf, $text, $params);
+            } elseif ($location == self::ON_EACH_PAGE) {
+                $this->printText($pdf, $text, $params);
+            } elseif ($location == self::ON_ODD_PAGES && $i % 2 == 1) {
+                $this->printText($pdf, $text, $params);
+            } elseif ($location == self::ON_EVEN_PAGES && $i % 2 == 0) {
+                $this->printText($pdf, $text, $params);
+            } elseif ($location == self::ON_LAST_PAGE && $i == $sourcePageCount) {
+                $this->printText($pdf, $text, $params);
+            }
+        }
+
+        $this->saveTo($pdf, $output);
+    }
+
+    /**
      * @brief The constructor
      * @param string $filepath The path to the file
      * @return void

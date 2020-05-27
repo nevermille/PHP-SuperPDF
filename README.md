@@ -72,3 +72,21 @@ If you don't want to overwrite the document, you can give an output path:
 ```php
 $pdf->insertPages("/path/to/pdf/to/insert", 5, "/path/to/output");
 ```
+
+### Add a background
+
+If you want to add a background on your document:
+
+```php
+$pdf->addBackground("/path/to/background/pdf", 5); // Adds a background on page 5
+$pdf->addBackground("/path/to/background/pdf", SuperPDF::ON_LAST_PAGE); // Adds a background on last page
+$pdf->addBackground("/path/to/background/pdf", SuperPDF::ON_ODD_PAGES); // Adds a background on odd pages
+$pdf->addBackground("/path/to/background/pdf", SuperPDF::ON_EVEN_PAGES); // Adds a background on even pages
+$pdf->addBackground("/path/to/background/pdf", SuperPDF::ON_EACH_PAGE); // Adds a background on each page
+```
+
+Like before, if you don't want to overwrite the document, you can give an output path:
+
+```php
+$pdf->addBackground("/path/to/background/pdf", 5, "/path/to/output");
+```

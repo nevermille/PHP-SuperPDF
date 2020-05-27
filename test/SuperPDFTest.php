@@ -572,4 +572,45 @@ class SuperPDFTest extends TestCase
         $this->assertEquals("9", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 9));
         $this->assertEquals("PAGE 3", $pdfOut->extractText(["x" => 69, "y" => 672, "w" => 42, "h" => 14], 9));
     }
+
+    /**
+     * @brief Tests the write text function with a page number
+     * @return void
+     * @throws PdfParserException
+     * @throws CrossReferenceException
+     * @throws FilterException
+     * @throws PdfTypeException
+     * @throws PdfReaderException
+     * @throws InvalidArgumentException
+     * @throws BadMethodCallException
+     * @throws Exception
+     * @throws ExpectationFailedException
+     * @throws RecursionContextInvalidArgumentException
+     */
+    public function testWriteTextAtPageNumber(): void
+    {
+        $pdf = new SuperPDF(__DIR__ . DIRECTORY_SEPARATOR . "pdf" . DIRECTORY_SEPARATOR . "04.pdf");
+        $out = tempnam(sys_get_temp_dir(), "PDF") . ".pdf";
+
+        $params = [
+            "font" => "arial",
+            "color" => ["r" => 30, "g" => 30, "b" => 30],
+            "pos" => ["x" => 10, "y" => 20],
+            "size" => 15
+        ];
+
+        $pdf->writeText("Lorem Ipsum", $params, 5, $out);
+
+        $pdfOut = new SuperPDF($out);
+        $this->assertEquals("1", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 1));
+        $this->assertEquals("2", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 2));
+        $this->assertEquals("3", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 3));
+        $this->assertEquals("4", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 4));
+        $this->assertEquals("5", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 5));
+        $this->assertEquals("Lorem Ipsum", $pdfOut->extractText(["x" => 29, "y" => 49, "w" => 93, "h" => 19], 5));
+        $this->assertEquals("6", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 6));
+        $this->assertEquals("7", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 7));
+        $this->assertEquals("8", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 8));
+        $this->assertEquals("9", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 9));
+    }
 }
