@@ -49,9 +49,13 @@ class SuperPDF
     protected $file;
 
     public const AT_THE_END = -1;
+    public const ON_LAST_PAGE = -1;
     public const AFTER_EACH_PAGE = -2;
+    public const ON_EACH_PAGE = -2;
     public const AFTER_ODD_PAGES = -3;
+    public const ON_ODD_PAGES = -3;
     public const AFTER_EVEN_PAGES = -4;
+    public const ON_EVEN_PAGES = -4;
 
     /**
      * @brief Returns the number of pages of the PDF document
@@ -116,6 +120,25 @@ class SuperPDF
         $tplidx = $pdf->importPage($page);
         $format = $pdf->getTemplateSize($tplidx);
         $pdf->AddPage($format["orientation"], [$format["width"], $format["height"]]);
+        $pdf->useTemplate($tplidx);
+    }
+
+    /**
+     * @brief Applies the template to the last page
+     * @param Fpdi $pdf The Fpdi document
+     * @param int $page The page number
+     * @return void
+     * @throws CrossReferenceException
+     * @throws FilterException
+     * @throws PdfParserException
+     * @throws PdfTypeException
+     * @throws PdfReaderException
+     * @throws InvalidArgumentException
+     * @throws BadMethodCallException
+     */
+    protected function applyTemplate(\setasign\Fpdi\Fpdi $pdf, int $page): void
+    {
+        $tplidx = $pdf->importPage($page);
         $pdf->useTemplate($tplidx);
     }
 
@@ -247,6 +270,68 @@ class SuperPDF
                 $this->insertFile($pdf, $fileToInsert);
             } elseif ($location == self::AT_THE_END && $i == $sourcePageCount) {
                 $this->insertFile($pdf, $fileToInsert);
+            }
+        }
+
+        $this->saveTo($pdf, $output);
+    }
+
+    /**
+     * @brief Adds a page with a background
+     * @param Fpdi $pdf The Fpdi document
+     * @param string $backgroundPdf The background PDF file
+     * @param int $page The page number where to insert or one of the class constants
+     * @return void
+     * @throws PdfParserException
+     * @throws CrossReferenceException
+     * @throws FilterException
+     * @throws PdfTypeException
+     * @throws PdfReaderException
+     * @throws InvalidArgumentException
+     * @throws BadMethodCallException
+     */
+    public function addPageWithBackground(\setasign\Fpdi\Fpdi $pdf, string $backgroundPdf, int $page): void
+    {
+        $pdf->setSourceFile($backgroundPdf);
+        $this->addPage($pdf, 1);
+
+        $pdf->setSourceFile($this->file);
+        $this->applyTemplate($pdf, $page);
+    }
+
+    /**
+     * @param Adds a background to the document
+     * @param string $backgroundPdf The path to the background PDF file
+     * @param int $location The page number or one
+     * @param string $output The output file path. If empty, the original file will be overwriten
+     * @return void
+     * @throws PdfParserException
+     * @throws CrossReferenceException
+     * @throws FilterException
+     * @throws PdfTypeException
+     * @throws PdfReaderException
+     * @throws InvalidArgumentException
+     * @throws BadMethodCallException
+     * @throws Exception
+     */
+    public function addBackground(string $backgroundPdf, int $location, string $output = ""): void
+    {
+        $pdf = new \setasign\Fpdi\Fpdi();
+        $sourcePageCount = $pdf->setSourceFile($this->file);
+
+        for ($i = 1; ($i <= $sourcePageCount); $i++) {
+            if ($i == $location) {
+                $this->addPageWithBackground($pdf, $backgroundPdf, $i);
+            } elseif ($location == self::ON_EACH_PAGE) {
+                $this->addPageWithBackground($pdf, $backgroundPdf, $i);
+            } elseif ($location == self::ON_ODD_PAGES && $i % 2 == 1) {
+                $this->addPageWithBackground($pdf, $backgroundPdf, $i);
+            } elseif ($location == self::ON_EVEN_PAGES && $i % 2 == 0) {
+                $this->addPageWithBackground($pdf, $backgroundPdf, $i);
+            } elseif ($location == self::ON_LAST_PAGE && $i == $sourcePageCount) {
+                $this->addPageWithBackground($pdf, $backgroundPdf, $i);
+            } else {
+                $this->addPage($pdf, $i);
             }
         }
 
