@@ -2,11 +2,15 @@
 
 namespace Lianhua\SuperPDF;
 
+use BadMethodCallException;
 use Exception;
 use InvalidArgumentException;
 use setasign\Fpdi\Fpdi;
+use setasign\Fpdi\PdfParser\CrossReference\CrossReferenceException;
+use setasign\Fpdi\PdfParser\Filter\FilterException;
 use setasign\Fpdi\PdfParser\PdfParserException;
 use setasign\Fpdi\PdfParser\Type\PdfTypeException;
+use setasign\Fpdi\PdfReader\PdfReaderException;
 
 /*
 SuperPDF Library
@@ -87,6 +91,65 @@ class SuperPDF
         unlink($tmpFile);
 
         return $res;
+    }
+
+    /**
+     * @brief Extracts a range of pages
+     * @param int $first The first page to extract
+     * @param int $last The last page to extract
+     * @param string $path The output file path
+     * @return void
+     * @throws PdfParserException
+     * @throws CrossReferenceException
+     * @throws FilterException
+     * @throws PdfTypeException
+     * @throws PdfReaderException
+     * @throws InvalidArgumentException
+     * @throws BadMethodCallException
+     * @throws Exception
+     */
+    public function extractPageRange(int $first, int $last, string $path): void
+    {
+        $pdf = new \setasign\Fpdi\Fpdi();
+        $pdf->setSourceFile($this->file);
+
+        for ($i = $first; ($i <= $last); $i++) {
+            $tplidx = $pdf->importPage($i);
+            $format = $pdf->getTemplateSize($tplidx);
+            $pdf->AddPage($format["orientation"], [$format["width"], $format["height"]]);
+            $pdf->useTemplate($tplidx);
+        }
+
+        $pdf->Output("F", $path);
+    }
+
+    /**
+     * @brief Extracts a list of pages
+     * @param array $list The list of page numbers
+     * @param string $path The output file path
+     * @return void
+     * @throws PdfParserException
+     * @throws CrossReferenceException
+     * @throws FilterException
+     * @throws PdfTypeException
+     * @throws PdfReaderException
+     * @throws InvalidArgumentException
+     * @throws BadMethodCallException
+     * @throws Exception
+     */
+    public function extractPageList(array $list, string $path): void
+    {
+        $pdf = new \setasign\Fpdi\Fpdi();
+        $pdf->setSourceFile($this->file);
+
+        foreach ($list as $page) {
+            $tplidx = $pdf->importPage($page);
+            $format = $pdf->getTemplateSize($tplidx);
+            $pdf->AddPage($format["orientation"], [$format["width"], $format["height"]]);
+            $pdf->useTemplate($tplidx);
+        }
+
+        $pdf->Output("F", $path);
     }
 
     /**
