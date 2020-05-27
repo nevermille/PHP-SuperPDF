@@ -147,4 +147,224 @@ class SuperPDFTest extends TestCase
         $this->assertEquals("8", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 4));
         $this->assertEquals("9", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 5));
     }
+
+    /**
+     * @brief Tests the insert function with a page number
+     * @return void
+     * @throws PdfParserException
+     * @throws CrossReferenceException
+     * @throws FilterException
+     * @throws PdfTypeException
+     * @throws PdfReaderException
+     * @throws InvalidArgumentException
+     * @throws BadMethodCallException
+     * @throws Exception
+     * @throws ExpectationFailedException
+     * @throws RecursionContextInvalidArgumentException
+     */
+    public function testInsertAtPageNumber()
+    {
+        $pdf = new SuperPDF(__DIR__ . DIRECTORY_SEPARATOR . "pdf" . DIRECTORY_SEPARATOR . "04.pdf");
+        $out = tempnam(sys_get_temp_dir(), "PDF") . ".pdf";
+        $pdf->insertPages(__DIR__ . DIRECTORY_SEPARATOR . "pdf" . DIRECTORY_SEPARATOR . "02.pdf", 5, $out);
+
+        $pdfOut = new SuperPDF($out);
+        $this->assertEquals("1", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 1));
+        $this->assertEquals("2", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 2));
+        $this->assertEquals("3", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 3));
+        $this->assertEquals("4", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 4));
+        $this->assertEquals("PAGE 1", $pdfOut->extractText(["x" => 175, "y" => 307, "w" => 39, "h" => 13], 5));
+        $this->assertEquals("PAGE 2", $pdfOut->extractText(["x" => 278, "y" => 424, "w" => 42, "h" => 13], 6));
+        $this->assertEquals("5", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 7));
+        $this->assertEquals("6", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 8));
+        $this->assertEquals("7", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 9));
+        $this->assertEquals("8", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 10));
+        $this->assertEquals("9", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 11));
+    }
+
+    /**
+     * @brief Tests the insert function at the end
+     * @return void
+     * @throws PdfParserException
+     * @throws CrossReferenceException
+     * @throws FilterException
+     * @throws PdfTypeException
+     * @throws PdfReaderException
+     * @throws InvalidArgumentException
+     * @throws BadMethodCallException
+     * @throws Exception
+     * @throws ExpectationFailedException
+     * @throws RecursionContextInvalidArgumentException
+     */
+    public function testInsertAtTheEnd()
+    {
+        $pdf = new SuperPDF(__DIR__ . DIRECTORY_SEPARATOR . "pdf" . DIRECTORY_SEPARATOR . "04.pdf");
+        $out = tempnam(sys_get_temp_dir(), "PDF") . ".pdf";
+
+        $pdf->insertPages(
+            __DIR__ . DIRECTORY_SEPARATOR . "pdf" . DIRECTORY_SEPARATOR . "02.pdf",
+            SuperPDF::AT_THE_END,
+            $out
+        );
+
+        $pdfOut = new SuperPDF($out);
+        $this->assertEquals("1", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 1));
+        $this->assertEquals("2", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 2));
+        $this->assertEquals("3", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 3));
+        $this->assertEquals("4", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 4));
+        $this->assertEquals("5", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 5));
+        $this->assertEquals("6", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 6));
+        $this->assertEquals("7", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 7));
+        $this->assertEquals("8", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 8));
+        $this->assertEquals("9", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 9));
+        $this->assertEquals("PAGE 1", $pdfOut->extractText(["x" => 175, "y" => 307, "w" => 39, "h" => 13], 10));
+        $this->assertEquals("PAGE 2", $pdfOut->extractText(["x" => 278, "y" => 424, "w" => 42, "h" => 13], 11));
+    }
+
+    /**
+     * @brief Tests the insert function after odd pages
+     * @return void
+     * @throws PdfParserException
+     * @throws CrossReferenceException
+     * @throws FilterException
+     * @throws PdfTypeException
+     * @throws PdfReaderException
+     * @throws InvalidArgumentException
+     * @throws BadMethodCallException
+     * @throws Exception
+     * @throws ExpectationFailedException
+     * @throws RecursionContextInvalidArgumentException
+     */
+    public function testInsertAfterOddPages()
+    {
+        $pdf = new SuperPDF(__DIR__ . DIRECTORY_SEPARATOR . "pdf" . DIRECTORY_SEPARATOR . "04.pdf");
+        $out = tempnam(sys_get_temp_dir(), "PDF") . ".pdf";
+
+        $pdf->insertPages(
+            __DIR__ . DIRECTORY_SEPARATOR . "pdf" . DIRECTORY_SEPARATOR . "02.pdf",
+            SuperPDF::AFTER_ODD_PAGES,
+            $out
+        );
+
+        $pdfOut = new SuperPDF($out);
+        $this->assertEquals("1", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 1));
+        $this->assertEquals("PAGE 1", $pdfOut->extractText(["x" => 175, "y" => 307, "w" => 39, "h" => 13], 2));
+        $this->assertEquals("PAGE 2", $pdfOut->extractText(["x" => 278, "y" => 424, "w" => 42, "h" => 13], 3));
+        $this->assertEquals("2", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 4));
+        $this->assertEquals("3", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 5));
+        $this->assertEquals("PAGE 1", $pdfOut->extractText(["x" => 175, "y" => 307, "w" => 39, "h" => 13], 6));
+        $this->assertEquals("PAGE 2", $pdfOut->extractText(["x" => 278, "y" => 424, "w" => 42, "h" => 13], 7));
+        $this->assertEquals("4", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 8));
+        $this->assertEquals("5", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 9));
+        $this->assertEquals("PAGE 1", $pdfOut->extractText(["x" => 175, "y" => 307, "w" => 39, "h" => 13], 10));
+        $this->assertEquals("PAGE 2", $pdfOut->extractText(["x" => 278, "y" => 424, "w" => 42, "h" => 13], 11));
+        $this->assertEquals("6", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 12));
+        $this->assertEquals("7", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 13));
+        $this->assertEquals("PAGE 1", $pdfOut->extractText(["x" => 175, "y" => 307, "w" => 39, "h" => 13], 14));
+        $this->assertEquals("PAGE 2", $pdfOut->extractText(["x" => 278, "y" => 424, "w" => 42, "h" => 13], 15));
+        $this->assertEquals("8", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 16));
+        $this->assertEquals("9", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 17));
+        $this->assertEquals("PAGE 1", $pdfOut->extractText(["x" => 175, "y" => 307, "w" => 39, "h" => 13], 18));
+        $this->assertEquals("PAGE 2", $pdfOut->extractText(["x" => 278, "y" => 424, "w" => 42, "h" => 13], 19));
+    }
+
+    /**
+     * @brief Tests the insert function after even pages
+     * @return void
+     * @throws PdfParserException
+     * @throws CrossReferenceException
+     * @throws FilterException
+     * @throws PdfTypeException
+     * @throws PdfReaderException
+     * @throws InvalidArgumentException
+     * @throws BadMethodCallException
+     * @throws Exception
+     * @throws ExpectationFailedException
+     * @throws RecursionContextInvalidArgumentException
+     */
+    public function testInsertAfterEvenPages()
+    {
+        $pdf = new SuperPDF(__DIR__ . DIRECTORY_SEPARATOR . "pdf" . DIRECTORY_SEPARATOR . "04.pdf");
+        $out = tempnam(sys_get_temp_dir(), "PDF") . ".pdf";
+
+        $pdf->insertPages(
+            __DIR__ . DIRECTORY_SEPARATOR . "pdf" . DIRECTORY_SEPARATOR . "02.pdf",
+            SuperPDF::AFTER_EVEN_PAGES,
+            $out
+        );
+
+        $pdfOut = new SuperPDF($out);
+        $this->assertEquals("1", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 1));
+        $this->assertEquals("2", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 2));
+        $this->assertEquals("PAGE 1", $pdfOut->extractText(["x" => 175, "y" => 307, "w" => 39, "h" => 13], 3));
+        $this->assertEquals("PAGE 2", $pdfOut->extractText(["x" => 278, "y" => 424, "w" => 42, "h" => 13], 4));
+        $this->assertEquals("3", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 5));
+        $this->assertEquals("4", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 6));
+        $this->assertEquals("PAGE 1", $pdfOut->extractText(["x" => 175, "y" => 307, "w" => 39, "h" => 13], 7));
+        $this->assertEquals("PAGE 2", $pdfOut->extractText(["x" => 278, "y" => 424, "w" => 42, "h" => 13], 8));
+        $this->assertEquals("5", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 9));
+        $this->assertEquals("6", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 10));
+        $this->assertEquals("PAGE 1", $pdfOut->extractText(["x" => 175, "y" => 307, "w" => 39, "h" => 13], 11));
+        $this->assertEquals("PAGE 2", $pdfOut->extractText(["x" => 278, "y" => 424, "w" => 42, "h" => 13], 12));
+        $this->assertEquals("7", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 13));
+        $this->assertEquals("8", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 14));
+        $this->assertEquals("PAGE 1", $pdfOut->extractText(["x" => 175, "y" => 307, "w" => 39, "h" => 13], 15));
+        $this->assertEquals("PAGE 2", $pdfOut->extractText(["x" => 278, "y" => 424, "w" => 42, "h" => 13], 16));
+        $this->assertEquals("9", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 17));
+    }
+
+    /**
+     * @brief Tests the insert function after each pages
+     * @return void
+     * @throws PdfParserException
+     * @throws CrossReferenceException
+     * @throws FilterException
+     * @throws PdfTypeException
+     * @throws PdfReaderException
+     * @throws InvalidArgumentException
+     * @throws BadMethodCallException
+     * @throws Exception
+     * @throws ExpectationFailedException
+     * @throws RecursionContextInvalidArgumentException
+     */
+    public function testInsertAfterEachPage()
+    {
+        $pdf = new SuperPDF(__DIR__ . DIRECTORY_SEPARATOR . "pdf" . DIRECTORY_SEPARATOR . "04.pdf");
+        $out = tempnam(sys_get_temp_dir(), "PDF") . ".pdf";
+
+        $pdf->insertPages(
+            __DIR__ . DIRECTORY_SEPARATOR . "pdf" . DIRECTORY_SEPARATOR . "02.pdf",
+            SuperPDF::AFTER_EACH_PAGE,
+            $out
+        );
+
+        $pdfOut = new SuperPDF($out);
+        $this->assertEquals("1", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 1));
+        $this->assertEquals("PAGE 1", $pdfOut->extractText(["x" => 175, "y" => 307, "w" => 39, "h" => 13], 2));
+        $this->assertEquals("PAGE 2", $pdfOut->extractText(["x" => 278, "y" => 424, "w" => 42, "h" => 13], 3));
+        $this->assertEquals("2", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 4));
+        $this->assertEquals("PAGE 1", $pdfOut->extractText(["x" => 175, "y" => 307, "w" => 39, "h" => 13], 5));
+        $this->assertEquals("PAGE 2", $pdfOut->extractText(["x" => 278, "y" => 424, "w" => 42, "h" => 13], 6));
+        $this->assertEquals("3", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 7));
+        $this->assertEquals("PAGE 1", $pdfOut->extractText(["x" => 175, "y" => 307, "w" => 39, "h" => 13], 8));
+        $this->assertEquals("PAGE 2", $pdfOut->extractText(["x" => 278, "y" => 424, "w" => 42, "h" => 13], 9));
+        $this->assertEquals("4", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 10));
+        $this->assertEquals("PAGE 1", $pdfOut->extractText(["x" => 175, "y" => 307, "w" => 39, "h" => 13], 11));
+        $this->assertEquals("PAGE 2", $pdfOut->extractText(["x" => 278, "y" => 424, "w" => 42, "h" => 13], 12));
+        $this->assertEquals("5", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 13));
+        $this->assertEquals("PAGE 1", $pdfOut->extractText(["x" => 175, "y" => 307, "w" => 39, "h" => 13], 14));
+        $this->assertEquals("PAGE 2", $pdfOut->extractText(["x" => 278, "y" => 424, "w" => 42, "h" => 13], 15));
+        $this->assertEquals("6", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 16));
+        $this->assertEquals("PAGE 1", $pdfOut->extractText(["x" => 175, "y" => 307, "w" => 39, "h" => 13], 17));
+        $this->assertEquals("PAGE 2", $pdfOut->extractText(["x" => 278, "y" => 424, "w" => 42, "h" => 13], 18));
+        $this->assertEquals("7", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 19));
+        $this->assertEquals("PAGE 1", $pdfOut->extractText(["x" => 175, "y" => 307, "w" => 39, "h" => 13], 20));
+        $this->assertEquals("PAGE 2", $pdfOut->extractText(["x" => 278, "y" => 424, "w" => 42, "h" => 13], 21));
+        $this->assertEquals("8", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 22));
+        $this->assertEquals("PAGE 1", $pdfOut->extractText(["x" => 175, "y" => 307, "w" => 39, "h" => 13], 23));
+        $this->assertEquals("PAGE 2", $pdfOut->extractText(["x" => 278, "y" => 424, "w" => 42, "h" => 13], 24));
+        $this->assertEquals("9", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 25));
+        $this->assertEquals("PAGE 1", $pdfOut->extractText(["x" => 175, "y" => 307, "w" => 39, "h" => 13], 26));
+        $this->assertEquals("PAGE 2", $pdfOut->extractText(["x" => 278, "y" => 424, "w" => 42, "h" => 13], 27));
+    }
 }

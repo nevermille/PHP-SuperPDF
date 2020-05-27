@@ -37,3 +37,38 @@ You can ask for the pages count:
 ```php
 $pagesCount = $pdf->getPageCount();
 ```
+
+### Extract pages
+#### Range
+
+If you want to extract a range of pages into a pdf file:
+
+```php
+$pdf->extractPageRange(3, 7, "path/to/pdf/output");
+```
+
+#### List
+
+If you want to extract a list of pages into a pdf file:
+
+```php
+$pdf->extractPageList([1, 3, 6, 8, 9], "path/to/pdf/output");
+```
+
+### Insert a PDF document
+
+If you want to insert a PDF file's contents into the document:
+
+```php
+$pdf->insertPages("/path/to/pdf/to/insert", 5); // Inserts the PDF at page 5
+$pdf->insertPages("/path/to/pdf/to/insert", SuperPDF::AFTER_EACH_PAGE); // Inserts the PDF after each page
+$pdf->insertPages("/path/to/pdf/to/insert", SuperPDF::AFTER_ODD_PAGES); // Inserts the PDF after odd pages
+$pdf->insertPages("/path/to/pdf/to/insert", SuperPDF::AFTER_EVEN_PAGES); // Inserts the PDF after even pages
+$pdf->insertPages("/path/to/pdf/to/insert", SuperPDF::AT_THE_END); // Inserts the PDF after the last page
+```
+
+If you don't want to overwrite the document, you can give an output path:
+
+```php
+$pdf->insertPages("/path/to/pdf/to/insert", 5, "/path/to/output");
+```

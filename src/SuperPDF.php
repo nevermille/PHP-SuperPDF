@@ -48,6 +48,11 @@ class SuperPDF
      */
     protected $file;
 
+    public const AT_THE_END = -1;
+    public const AFTER_EACH_PAGE = -2;
+    public const AFTER_ODD_PAGES = -3;
+    public const AFTER_EVEN_PAGES = -4;
+
     /**
      * @brief Returns the number of pages of the PDF document
      * @return int The number of pages
@@ -94,6 +99,27 @@ class SuperPDF
     }
 
     /**
+     * @brief Adds the Nth page to the document
+     * @param Fpdi $pdf The Fpdi document
+     * @param int $page The page number
+     * @return void
+     * @throws CrossReferenceException
+     * @throws FilterException
+     * @throws PdfParserException
+     * @throws PdfTypeException
+     * @throws PdfReaderException
+     * @throws InvalidArgumentException
+     * @throws BadMethodCallException
+     */
+    protected function addPage(\setasign\Fpdi\Fpdi $pdf, int $page): void
+    {
+        $tplidx = $pdf->importPage($page);
+        $format = $pdf->getTemplateSize($tplidx);
+        $pdf->AddPage($format["orientation"], [$format["width"], $format["height"]]);
+        $pdf->useTemplate($tplidx);
+    }
+
+    /**
      * @brief Extracts a range of pages
      * @param int $first The first page to extract
      * @param int $last The last page to extract
@@ -114,10 +140,7 @@ class SuperPDF
         $pdf->setSourceFile($this->file);
 
         for ($i = $first; ($i <= $last); $i++) {
-            $tplidx = $pdf->importPage($i);
-            $format = $pdf->getTemplateSize($tplidx);
-            $pdf->AddPage($format["orientation"], [$format["width"], $format["height"]]);
-            $pdf->useTemplate($tplidx);
+            $this->addPage($pdf, $i);
         }
 
         $pdf->Output("F", $path);
@@ -143,13 +166,91 @@ class SuperPDF
         $pdf->setSourceFile($this->file);
 
         foreach ($list as $page) {
-            $tplidx = $pdf->importPage($page);
-            $format = $pdf->getTemplateSize($tplidx);
-            $pdf->AddPage($format["orientation"], [$format["width"], $format["height"]]);
-            $pdf->useTemplate($tplidx);
+            $this->addPage($pdf, $page);
         }
 
         $pdf->Output("F", $path);
+    }
+
+    /**
+     * @brief Adds another document to a document
+     * @param Fpdi $pdf The document
+     * @param string $file The PDF file to add
+     * @return void
+     * @throws PdfParserException
+     * @throws CrossReferenceException
+     * @throws FilterException
+     * @throws PdfTypeException
+     * @throws PdfReaderException
+     * @throws InvalidArgumentException
+     * @throws BadMethodCallException
+     */
+    protected function insertFile(\setasign\Fpdi\Fpdi $pdf, string $file): void
+    {
+        $insertPageCount = $pdf->setSourceFile($file);
+
+        for ($i = 1; ($i <= $insertPageCount); $i++) {
+            $this->addPage($pdf, $i);
+        }
+
+        $pdf->setSourceFile($this->file);
+    }
+
+    /**
+     * @brief Saves the document
+     * @param Fpdi $pdf The document
+     * @param string $file The output file path. If empty, the original file will be overwriten
+     * @return void
+     * @throws Exception
+     */
+    protected function saveTo(\setasign\Fpdi\Fpdi $pdf, string $file): void
+    {
+        if (empty($file)) {
+            $pdf->Output("F", $this->file);
+        } else {
+            $pdf->Output("F", $file);
+        }
+    }
+
+    /**
+     * @brief Inserts a PDF content into the document
+     * @param string $fileToInsert The PDF file to insert
+     * @param int $location The page number where to insert or one of the class constants
+     * @param string $output The output file path. If empty, the original file will be overwriten
+     * @return void
+     * @throws PdfParserException
+     * @throws CrossReferenceException
+     * @throws FilterException
+     * @throws PdfTypeException
+     * @throws PdfReaderException
+     * @throws InvalidArgumentException
+     * @throws BadMethodCallException
+     * @throws Exception
+     */
+    public function insertPages(string $fileToInsert, int $location, string $output = ""): void
+    {
+        $pdf = new \setasign\Fpdi\Fpdi();
+        $sourcePageCount = $pdf->setSourceFile($this->file);
+
+        for ($i = 1; ($i <= $sourcePageCount); $i++) {
+            if ($i == $location) {
+                $this->insertFile($pdf, $fileToInsert);
+            }
+
+            $this->addPage($pdf, $i);
+
+            if ($location == self::AFTER_EACH_PAGE) {
+                $this->insertFile($pdf, $fileToInsert);
+            } elseif ($location == self::AFTER_ODD_PAGES && $i % 2 == 1) {
+                $this->insertFile($pdf, $fileToInsert);
+            } elseif ($location == self::AFTER_EVEN_PAGES && $i % 2 == 0) {
+                $this->insertFile($pdf, $fileToInsert);
+            } elseif ($location == self::AT_THE_END && $i == $sourcePageCount) {
+                $this->insertFile($pdf, $fileToInsert);
+            }
+        }
+
+        $this->saveTo($pdf, $output);
     }
 
     /**
