@@ -507,6 +507,48 @@ class SuperPDF
     }
 
     /**
+     * Digitally signs a document
+     * @param string $cert The certificate (see openssl_pkcs7_sign)
+     * @param string $privateKey The private key (see openssl_pkcs7_sign)
+     * @param string $password The private key's password
+     * @param string $extraCerts A file with a bunch of extra certificates (see openssl_pkcs7_sign)
+     * @param int $certType The type of certification (see TCPDF)
+     * @param array $info The infos
+     * @param string $approval Enable approval signature
+     * @param string $output The output file path. If empty, the original file will be overwriten
+     * @return void
+     * @throws PdfParserException
+     * @throws CrossReferenceException
+     * @throws FilterException
+     * @throws PdfTypeException
+     * @throws PdfReaderException
+     * @throws InvalidArgumentException
+     * @throws BadMethodCallException
+     * @throws Exception
+     */
+    public function sign(
+        string $cert = "",
+        string $privateKey = "",
+        string $password = "",
+        string $extraCerts = "",
+        int $certType = 2,
+        array $info = [],
+        string $approval = "",
+        string $output = ""
+    ): void {
+        $pdf = new \setasign\Fpdi\Tcpdf\Fpdi();
+        $sourcePageCount = $pdf->setSourceFile($this->file);
+
+        for ($i = 1; ($i <= $sourcePageCount); $i++) {
+            $this->addPage($pdf, $i);
+        }
+
+        $pdf->setSignature($cert, $privateKey, $password, $extraCerts, $certType, $info, $approval);
+
+        $this->saveToWithTcpdf($pdf, $output);
+    }
+
+    /**
      * @brief The constructor
      * @param string $filepath The path to the file
      * @return void
