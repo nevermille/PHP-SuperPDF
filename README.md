@@ -16,7 +16,7 @@ This library has been tested for PHP 7.3 and higher
 Just use composer in your project:
 
 ```
-composer require lianhua/superxml
+composer require lianhua/superpdf
 ```
 
 If you don't use composer, clone or download this repository, all you need is inside the src directory, you'll need the FPDI library.
