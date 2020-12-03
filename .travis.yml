@@ -1,11 +1,14 @@
 dist: bionic
 language: php
 php:
-  - '7.3'
-  - '7.4'
+- '7.3'
+- '7.4'
 before_install:
-  - sudo apt-get -y install poppler-utils
+- sudo apt-get -y install poppler-utils
 install:
-  - composer install
+- composer install
 script:
-  - ./vendor/bin/phpunit  --bootstrap ./vendor/autoload.php ./test/ --testdox
+- "./vendor/bin/phpunit  --bootstrap ./vendor/autoload.php ./test/ --testdox"
+notifications:
+  slack:
+    secure: XKx7NLfIwB2VfrMrF1q7p3p2Rdn4KOCmu4nnA9oUv91fyia2JqjEnrWTaP+PA9FeLtlWtXtwq3gDS6qyGOe2LnigyCwAdqLV8Gjf6perbKXZiSlkQ6KuNyfZwO4yoNQQO/99DCX/ykq5OVdXQ5Om5+52nyd9vr467er7EFbofpP42u0L/ssWYhi/GTQ3rv+6Tx6mqfAZZ2o+vqlgejtgzyopLA37j2IBDrlf6cUgzOw4hviQ5FZjGgnK2MjTg+cetV4+gFdCG/91W3t4sH1GmML+r8J+wqdaUqRqbnnrlplSKNUXSYcMW8WFqLBgNQkVXwu8TlrHtcq6zEPtzntoQe13dzHjvm3sQ5Z+7CGD/7fSchDdROF9GZ9Q9d7GXOBA4k3EmBYxxigFawPOJe6HnzFGhMbOUSzwr5F79ag1AfUAHmHk93kTIp8MZiLn6QRm16Z470eMw6750/CtgHOt+vgOXpYWM67ii9MgAYkg645l9oPm6XLCYxIpfvpMZiz5oai7sR2eZ3NarmvI+CDgLwB60G0rvPU93ZlCWxwE9nBSxll924o7D5RD+8GjoIxHM/0CCJkCAPQo1t9H7zqjTan1YzcYY4Qz5mq6nWx/FjHCGLoq2ULIQLOXt6bwDiqLLx9QiAdc4Co+oXKkiIxcDS9EDG3TZAE5Bf/MiPzws4U=
