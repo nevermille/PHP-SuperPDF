@@ -9,7 +9,7 @@ A simple library to manipulate PDF files in PHP
 
 ## Compatibility
 
-This library has been tested for PHP 7.3 and higher
+This library has been tested for PHP 7.3 and higher. Functions relying on TCPDF don't work on PHP 8 at the moment!
 
 ## Installation
 
