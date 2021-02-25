@@ -68,7 +68,10 @@ class SuperPDF
     public function getPageCount(): int
     {
         $pdf = new Fpdi();
-        return $pdf->setSourceFile($this->file);
+        $pages = $pdf->setSourceFile($this->file);
+        $pdf->Close();
+
+        return $pages;
     }
 
     /**
