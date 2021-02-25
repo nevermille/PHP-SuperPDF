@@ -89,15 +89,15 @@ class SuperPDF
 
         // Command line build
         $cmd = "pdftotext";
-        $cmd .= " -x " . ($coordinates["x"] ?? 0);
-        $cmd .= " -y " . ($coordinates["y"] ?? 0);
-        $cmd .= " -W " . ($coordinates["w"] ?? 0);
-        $cmd .= " -H " . ($coordinates["h"] ?? 0);
-        $cmd .= " -r " . $dpi;
-        $cmd .= " -f " . $page;
-        $cmd .= " -l " . $page;
-        $cmd .= " " . $this->file;
-        $cmd .= " " . $tmpFile;
+        $cmd .= " -x " . escapeshellarg(($coordinates["x"] ?? 0));
+        $cmd .= " -y " . escapeshellarg(($coordinates["y"] ?? 0));
+        $cmd .= " -W " . escapeshellarg(($coordinates["w"] ?? 0));
+        $cmd .= " -H " . escapeshellarg(($coordinates["h"] ?? 0));
+        $cmd .= " -r " . escapeshellarg($dpi);
+        $cmd .= " -f " . escapeshellarg($page);
+        $cmd .= " -l " . escapeshellarg($page);
+        $cmd .= " " . escapeshellarg($this->file);
+        $cmd .= " " . escapeshellarg($tmpFile);
 
         exec($cmd);
         $res = trim(file_get_contents($tmpFile), " \t\n\r\0\x0B\x0C");
@@ -171,6 +171,7 @@ class SuperPDF
         }
 
         $pdf->Output("F", $path);
+        $pdf->Close();
     }
 
     /**
@@ -197,6 +198,7 @@ class SuperPDF
         }
 
         $pdf->Output("F", $path);
+        $pdf->Close();
     }
 
     /**
@@ -294,6 +296,7 @@ class SuperPDF
         }
 
         $this->saveTo($pdf, $output);
+        $pdf->Close();
     }
 
     /**
@@ -310,7 +313,7 @@ class SuperPDF
      * @throws InvalidArgumentException
      * @throws BadMethodCallException
      */
-    public function addPageWithBackground(\setasign\Fpdi\Fpdi $pdf, string $backgroundPdf, int $page): void
+    protected function addPageWithBackground(\setasign\Fpdi\Fpdi $pdf, string $backgroundPdf, int $page): void
     {
         $pdf->setSourceFile($backgroundPdf);
         $this->addPage($pdf, 1);
@@ -356,6 +359,7 @@ class SuperPDF
         }
 
         $this->saveTo($pdf, $output);
+        $pdf->Close();
     }
 
     /**
@@ -413,6 +417,7 @@ class SuperPDF
         }
 
         $this->saveTo($pdf, $output);
+        $pdf->Close();
     }
 
     /**
@@ -504,8 +509,11 @@ class SuperPDF
 
         if (strtolower(pathinfo($imagePath, PATHINFO_EXTENSION)) == "svg") {
             $this->saveToWithTcpdf($pdf, $output);
+            $pdf->Close();
+            $pdf->__destruct(); // I have to do this dirty hack because TCPDF files never destruct by themselves
         } else {
             $this->saveTo($pdf, $output);
+            $pdf->Close();
         }
     }
 
@@ -549,6 +557,8 @@ class SuperPDF
         $pdf->setSignature($cert, $privateKey, $password, $extraCerts, $certType, $info, $approval);
 
         $this->saveToWithTcpdf($pdf, $output);
+        $pdf->Close();
+        $pdf->__destruct();
     }
 
     /**
