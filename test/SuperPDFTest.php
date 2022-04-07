@@ -821,7 +821,7 @@ class SuperPDFTest extends TestCase
         ];
 
         $pdf->drawImage(__DIR__ . DIRECTORY_SEPARATOR . "img" . DIRECTORY_SEPARATOR . "tux.png", $params, 5, $out);
-        echo("Please test image presence at file " . $out . PHP_EOL);
+        echo ("Please test image presence at file " . $out . PHP_EOL);
 
         $pdfOut = new SuperPDF($out);
         $this->assertEquals("1", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 1));
@@ -861,7 +861,7 @@ class SuperPDFTest extends TestCase
         ];
 
         $pdf->drawImage(__DIR__ . DIRECTORY_SEPARATOR . "img" . DIRECTORY_SEPARATOR . "tux.svg", $params, 5, $out);
-        echo("Please test image presence at file " . $out . PHP_EOL);
+        echo ("Please test image presence at file " . $out . PHP_EOL);
 
         $pdfOut = new SuperPDF($out);
         $this->assertEquals("1", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 1));
@@ -912,6 +912,291 @@ class SuperPDFTest extends TestCase
         $this->assertEquals("DOLOR", $pdf->extractText(["x" => 365, "y" => 468, "w" => 143, "h" => 38]));
         $this->assertEquals("AMET", $pdf->extractText(["x" => 265, "y" => 600, "w" => 27, "h" => 11]));
 
-        echo("Please test signature presence at file " . $out . PHP_EOL);
+        echo ("Please test signature presence at file " . $out . PHP_EOL);
+    }
+
+    /**
+     * @brief Tests the write text function with a page number
+     * @return void
+     * @throws PdfParserException
+     * @throws CrossReferenceException
+     * @throws FilterException
+     * @throws PdfTypeException
+     * @throws PdfReaderException
+     * @throws InvalidArgumentException
+     * @throws BadMethodCallException
+     * @throws Exception
+     * @throws ExpectationFailedException
+     * @throws RecursionContextInvalidArgumentException
+     */
+    public function testWriteMultiCellAtPageNumber(): void
+    {
+        $pdf = new SuperPDF(__DIR__ . DIRECTORY_SEPARATOR . "pdf" . DIRECTORY_SEPARATOR . "04.pdf");
+        $out = tempnam(sys_get_temp_dir(), "PDF") . ".pdf";
+
+        $params = [
+            "font" => "arial",
+            "color" => ["r" => 30, "g" => 30, "b" => 30],
+            "pos" => ["x" => 50, "y" => 20],
+            "size" => 15,
+            "cell" => ["w" => 200, "h" => 7, "border" => 0, "align" => "L", "fill" => false]
+        ];
+
+        $pdf->writeMultiCellText("Lorem Ipsum\nSit Dolor Amet", $params, 5, $out);
+
+        $pdfOut = new SuperPDF($out);
+        $this->assertEquals("1", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 1));
+        $this->assertEquals("2", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 2));
+        $this->assertEquals("3", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 3));
+        $this->assertEquals("4", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 4));
+        $this->assertEquals("5", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 5));
+        $this->assertEquals(
+            "Lorem Ipsum\nSit Dolor Amet",
+            $pdfOut->extractText(["x" => 148, "y" => 58, "w" => 128, "h" => 51], 5)
+        );
+        $this->assertEquals("6", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 6));
+        $this->assertEquals("7", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 7));
+        $this->assertEquals("8", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 8));
+        $this->assertEquals("9", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 9));
+    }
+
+    /**
+     * @brief Tests the write text function on last page
+     * @return void
+     * @throws PdfParserException
+     * @throws CrossReferenceException
+     * @throws FilterException
+     * @throws PdfTypeException
+     * @throws PdfReaderException
+     * @throws InvalidArgumentException
+     * @throws BadMethodCallException
+     * @throws Exception
+     * @throws ExpectationFailedException
+     * @throws RecursionContextInvalidArgumentException
+     */
+    public function testWriteMultiCellOnLastPage(): void
+    {
+        $pdf = new SuperPDF(__DIR__ . DIRECTORY_SEPARATOR . "pdf" . DIRECTORY_SEPARATOR . "04.pdf");
+        $out = tempnam(sys_get_temp_dir(), "PDF") . ".pdf";
+
+        $params = [
+            "font" => "arial",
+            "color" => ["r" => 30, "g" => 30, "b" => 30],
+            "pos" => ["x" => 50, "y" => 20],
+            "size" => 15,
+            "cell" => ["w" => 200, "h" => 7, "border" => 0, "align" => "L", "fill" => false]
+        ];
+
+        $pdf->writeMultiCellText("Lorem Ipsum\nSit Dolor Amet", $params, SuperPDF::ON_LAST_PAGE, $out);
+
+        $pdfOut = new SuperPDF($out);
+        $this->assertEquals("1", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 1));
+        $this->assertEquals("2", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 2));
+        $this->assertEquals("3", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 3));
+        $this->assertEquals("4", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 4));
+        $this->assertEquals("5", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 5));
+        $this->assertEquals("6", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 6));
+        $this->assertEquals("7", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 7));
+        $this->assertEquals("8", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 8));
+        $this->assertEquals("9", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 9));
+        $this->assertEquals(
+            "Lorem Ipsum\nSit Dolor Amet",
+            $pdfOut->extractText(["x" => 148, "y" => 58, "w" => 128, "h" => 51], 9)
+        );
+    }
+
+    /**
+     * @brief Tests the write text function on odd pages
+     * @return void
+     * @throws PdfParserException
+     * @throws CrossReferenceException
+     * @throws FilterException
+     * @throws PdfTypeException
+     * @throws PdfReaderException
+     * @throws InvalidArgumentException
+     * @throws BadMethodCallException
+     * @throws Exception
+     * @throws ExpectationFailedException
+     * @throws RecursionContextInvalidArgumentException
+     */
+    public function testWriteMultiCellOnOddPages(): void
+    {
+        $pdf = new SuperPDF(__DIR__ . DIRECTORY_SEPARATOR . "pdf" . DIRECTORY_SEPARATOR . "04.pdf");
+        $out = tempnam(sys_get_temp_dir(), "PDF") . ".pdf";
+
+        $params = [
+            "font" => "arial",
+            "color" => ["r" => 30, "g" => 30, "b" => 30],
+            "pos" => ["x" => 50, "y" => 20],
+            "size" => 15,
+            "cell" => ["w" => 200, "h" => 7, "border" => 0, "align" => "L", "fill" => false]
+        ];
+
+        $pdf->writeMultiCellText("Lorem Ipsum\nSit Dolor Amet", $params, SuperPDF::ON_ODD_PAGES, $out);
+
+        $pdfOut = new SuperPDF($out);
+        $this->assertEquals("1", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 1));
+        $this->assertEquals(
+            "Lorem Ipsum\nSit Dolor Amet",
+            $pdfOut->extractText(["x" => 148, "y" => 58, "w" => 128, "h" => 51], 1)
+        );
+        $this->assertEquals("2", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 2));
+        $this->assertEquals("3", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 3));
+        $this->assertEquals(
+            "Lorem Ipsum\nSit Dolor Amet",
+            $pdfOut->extractText(["x" => 148, "y" => 58, "w" => 128, "h" => 51], 3)
+        );
+        $this->assertEquals("4", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 4));
+        $this->assertEquals("5", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 5));
+        $this->assertEquals(
+            "Lorem Ipsum\nSit Dolor Amet",
+            $pdfOut->extractText(["x" => 148, "y" => 58, "w" => 128, "h" => 51], 5)
+        );
+        $this->assertEquals("6", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 6));
+        $this->assertEquals("7", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 7));
+        $this->assertEquals(
+            "Lorem Ipsum\nSit Dolor Amet",
+            $pdfOut->extractText(["x" => 148, "y" => 58, "w" => 128, "h" => 51], 7)
+        );
+        $this->assertEquals("8", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 8));
+        $this->assertEquals("9", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 9));
+        $this->assertEquals(
+            "Lorem Ipsum\nSit Dolor Amet",
+            $pdfOut->extractText(["x" => 148, "y" => 58, "w" => 128, "h" => 51], 9)
+        );
+    }
+
+    /**
+     * @brief Tests the write text function on even pages
+     * @return void
+     * @throws PdfParserException
+     * @throws CrossReferenceException
+     * @throws FilterException
+     * @throws PdfTypeException
+     * @throws PdfReaderException
+     * @throws InvalidArgumentException
+     * @throws BadMethodCallException
+     * @throws Exception
+     * @throws ExpectationFailedException
+     * @throws RecursionContextInvalidArgumentException
+     */
+    public function testWriteMultiCellOnEvenPages(): void
+    {
+        $pdf = new SuperPDF(__DIR__ . DIRECTORY_SEPARATOR . "pdf" . DIRECTORY_SEPARATOR . "04.pdf");
+        $out = tempnam(sys_get_temp_dir(), "PDF") . ".pdf";
+
+        $params = [
+            "font" => "arial",
+            "color" => ["r" => 30, "g" => 30, "b" => 30],
+            "pos" => ["x" => 50, "y" => 20],
+            "size" => 15,
+            "cell" => ["w" => 200, "h" => 7, "border" => 0, "align" => "L", "fill" => false]
+        ];
+
+        $pdf->writeMultiCellText("Lorem Ipsum\nSit Dolor Amet", $params, SuperPDF::ON_EVEN_PAGES, $out);
+
+        $pdfOut = new SuperPDF($out);
+        $this->assertEquals("1", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 1));
+        $this->assertEquals("2", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 2));
+        $this->assertEquals(
+            "Lorem Ipsum\nSit Dolor Amet",
+            $pdfOut->extractText(["x" => 148, "y" => 58, "w" => 128, "h" => 51], 2)
+        );
+        $this->assertEquals("3", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 3));
+        $this->assertEquals("4", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 4));
+        $this->assertEquals(
+            "Lorem Ipsum\nSit Dolor Amet",
+            $pdfOut->extractText(["x" => 148, "y" => 58, "w" => 128, "h" => 51], 4)
+        );
+        $this->assertEquals("5", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 5));
+        $this->assertEquals("6", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 6));
+        $this->assertEquals(
+            "Lorem Ipsum\nSit Dolor Amet",
+            $pdfOut->extractText(["x" => 148, "y" => 58, "w" => 128, "h" => 51], 6)
+        );
+        $this->assertEquals("7", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 7));
+        $this->assertEquals("8", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 8));
+        $this->assertEquals(
+            "Lorem Ipsum\nSit Dolor Amet",
+            $pdfOut->extractText(["x" => 148, "y" => 58, "w" => 128, "h" => 51], 8)
+        );
+        $this->assertEquals("9", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 9));
+    }
+
+    /**
+     * @brief Tests the write text function on each page
+     * @return void
+     * @throws PdfParserException
+     * @throws CrossReferenceException
+     * @throws FilterException
+     * @throws PdfTypeException
+     * @throws PdfReaderException
+     * @throws InvalidArgumentException
+     * @throws BadMethodCallException
+     * @throws Exception
+     * @throws ExpectationFailedException
+     * @throws RecursionContextInvalidArgumentException
+     */
+    public function testWriteMultiCellOnEachPage(): void
+    {
+        $pdf = new SuperPDF(__DIR__ . DIRECTORY_SEPARATOR . "pdf" . DIRECTORY_SEPARATOR . "04.pdf");
+        $out = tempnam(sys_get_temp_dir(), "PDF") . ".pdf";
+
+        $params = [
+            "font" => "arial",
+            "color" => ["r" => 30, "g" => 30, "b" => 30],
+            "pos" => ["x" => 50, "y" => 20],
+            "size" => 15,
+            "cell" => ["w" => 200, "h" => 7, "border" => 0, "align" => "L", "fill" => false]
+        ];
+
+        $pdf->writeMultiCellText("Lorem Ipsum\nSit Dolor Amet", $params, SuperPDF::ON_EACH_PAGE, $out);
+
+        $pdfOut = new SuperPDF($out);
+        $this->assertEquals("1", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 1));
+        $this->assertEquals(
+            "Lorem Ipsum\nSit Dolor Amet",
+            $pdfOut->extractText(["x" => 148, "y" => 58, "w" => 128, "h" => 51], 1)
+        );
+        $this->assertEquals("2", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 2));
+        $this->assertEquals(
+            "Lorem Ipsum\nSit Dolor Amet",
+            $pdfOut->extractText(["x" => 148, "y" => 58, "w" => 128, "h" => 51], 2)
+        );
+        $this->assertEquals("3", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 3));
+        $this->assertEquals(
+            "Lorem Ipsum\nSit Dolor Amet",
+            $pdfOut->extractText(["x" => 148, "y" => 58, "w" => 128, "h" => 51], 3)
+        );
+        $this->assertEquals("4", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 4));
+        $this->assertEquals(
+            "Lorem Ipsum\nSit Dolor Amet",
+            $pdfOut->extractText(["x" => 148, "y" => 58, "w" => 128, "h" => 51], 4)
+        );
+        $this->assertEquals("5", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 5));
+        $this->assertEquals(
+            "Lorem Ipsum\nSit Dolor Amet",
+            $pdfOut->extractText(["x" => 148, "y" => 58, "w" => 128, "h" => 51], 5)
+        );
+        $this->assertEquals("6", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 6));
+        $this->assertEquals(
+            "Lorem Ipsum\nSit Dolor Amet",
+            $pdfOut->extractText(["x" => 148, "y" => 58, "w" => 128, "h" => 51], 6)
+        );
+        $this->assertEquals("7", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 7));
+        $this->assertEquals(
+            "Lorem Ipsum\nSit Dolor Amet",
+            $pdfOut->extractText(["x" => 148, "y" => 58, "w" => 128, "h" => 51], 7)
+        );
+        $this->assertEquals("8", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 8));
+        $this->assertEquals(
+            "Lorem Ipsum\nSit Dolor Amet",
+            $pdfOut->extractText(["x" => 148, "y" => 58, "w" => 128, "h" => 51], 8)
+        );
+        $this->assertEquals("9", $pdfOut->extractText(["x" => 67, "y" => 70, "w" => 18, "h" => 18], 9));
+        $this->assertEquals(
+            "Lorem Ipsum\nSit Dolor Amet",
+            $pdfOut->extractText(["x" => 148, "y" => 58, "w" => 128, "h" => 51], 9)
+        );
     }
 }
