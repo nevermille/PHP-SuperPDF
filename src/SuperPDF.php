@@ -49,6 +49,12 @@ class SuperPDF
      */
     protected $file;
 
+    /**
+     * @brief The pdf currently in construction for transactional operations
+     * @var \setasign\Fpdi\Fpdi
+     */
+    protected $transactionPdf;
+
     public const AT_THE_END = -1;
     public const ON_LAST_PAGE = -1;
     public const AFTER_EACH_PAGE = -2;
@@ -242,6 +248,22 @@ class SuperPDF
     }
 
     /**
+     * @brief Saves the document (TFPDF version)
+     * @param TcpdfFpdi $pdf The document
+     * @param string $file The output file path. If empty, the original file will be overwriten
+     * @return void
+     * @throws Exception
+     */
+    protected function saveToWithTfpdf(\setasign\Fpdi\Tfpdf\Fpdi $pdf, string $file): void
+    {
+        if (empty($file)) {
+            $pdf->Output($this->file, "F");
+        } else {
+            $pdf->Output($file, "F");
+        }
+    }
+
+    /**
      * @brief Saves the document (TCPDF version)
      * @param TcpdfFpdi $pdf The document
      * @param string $file The output file path. If empty, the original file will be overwriten
@@ -370,7 +392,7 @@ class SuperPDF
      * @return void
      * @throws Exception
      */
-    protected function printText(\setasign\Fpdi\Fpdi $pdf, string $text, array $params): void
+    protected function printText(\setasign\Fpdi\Tfpdf\Fpdi $pdf, string $text, array $params): void
     {
         $pdf->SetFont(($params["font"] ?? "sans-serif"), ($params["style"] ?? ""));
         $pdf->SetTextColor(($params["color"]["r"] ?? 0), ($params["color"]["g"] ?? 0), ($params["color"]["b"] ?? 0));
@@ -397,7 +419,7 @@ class SuperPDF
      */
     public function writeText(string $text, array $params, int $location, string $output = ""): void
     {
-        $pdf = new \setasign\Fpdi\Fpdi();
+        $pdf = new \setasign\Fpdi\Tfpdf\Fpdi();
         $sourcePageCount = $pdf->setSourceFile($this->file);
 
         for ($i = 1; ($i <= $sourcePageCount); $i++) {
@@ -416,7 +438,7 @@ class SuperPDF
             }
         }
 
-        $this->saveTo($pdf, $output);
+        $this->saveToWithTfpdf($pdf, $output);
         $pdf->Close();
     }
 
@@ -428,9 +450,15 @@ class SuperPDF
      * @return void
      * @throws Exception
      */
-    protected function printMultiCell(\setasign\Fpdi\Fpdi $pdf, string $text, array $params): void
+    protected function printMultiCell(\setasign\Fpdi\Tfpdf\Fpdi $pdf, string $text, array $params): void
     {
-        $pdf->SetFont(($params["font"] ?? "sans-serif"), ($params["style"] ?? ""));
+        try {
+            $pdf->SetFont(($params["font"] ?? "sans-serif"), ($params["style"] ?? ""));
+        } catch (\Exception $e) {
+            $pdf->AddFont("DejaVu", ($params["style"] ?? ""), "DejaVuSans.ttf");
+            $pdf->SetFont("DejaVu");
+        }
+
         $pdf->SetTextColor(($params["color"]["r"] ?? 0), ($params["color"]["g"] ?? 0), ($params["color"]["b"] ?? 0));
         $pdf->SetFontSize(($params["size"] ?? 12));
         $pdf->SetXY(($params["pos"]["x"] ?? 0), ($params["pos"]["y"] ?? 0));
@@ -462,7 +490,7 @@ class SuperPDF
      */
     public function writeMultiCellText(string $text, array $params, int $location, string $output = ""): void
     {
-        $pdf = new \setasign\Fpdi\Fpdi();
+        $pdf = new \setasign\Fpdi\Tfpdf\Fpdi();
         $sourcePageCount = $pdf->setSourceFile($this->file);
 
         for ($i = 1; ($i <= $sourcePageCount); $i++) {
@@ -481,7 +509,7 @@ class SuperPDF
             }
         }
 
-        $this->saveTo($pdf, $output);
+        $this->saveToWithTfpdf($pdf, $output);
         $pdf->Close();
     }
 
@@ -624,6 +652,60 @@ class SuperPDF
         $this->saveToWithTcpdf($pdf, $output);
         $pdf->Close();
         $pdf->__destruct();
+    }
+
+    /**
+     * @brief Starts a merge transaction (opens pdf file and put the cursor at the end)
+     * @return void
+     * @throws PdfParserException
+     * @throws CrossReferenceException
+     * @throws FilterException
+     * @throws PdfTypeException
+     * @throws PdfReaderException
+     * @throws InvalidArgumentException
+     * @throws BadMethodCallException
+     */
+    public function startMergeTransaction(): void
+    {
+        $this->transactionPdf = new \setasign\Fpdi\Fpdi();
+        $sourcePageCount = $this->transactionPdf->setSourceFile($this->file);
+
+        for ($i = 1; ($i <= $sourcePageCount); $i++) {
+            $this->addPage($this->transactionPdf, $i);
+        }
+    }
+
+    /**
+     * @brief Merges a document
+     * @param string $document
+     * @return void
+     * @throws CrossReferenceException
+     * @throws FilterException
+     * @throws PdfParserException
+     * @throws PdfTypeException
+     * @throws PdfReaderException
+     * @throws InvalidArgumentException
+     * @throws BadMethodCallException
+     */
+    public function mergeDocument(string $document): void
+    {
+        $sourcePageCount = $this->transactionPdf->setSourceFile($document);
+
+        for ($i = 1; ($i <= $sourcePageCount); $i++) {
+            $this->addPage($this->transactionPdf, $i);
+        }
+    }
+
+    /**
+     * @brief Ends the transaction
+     * @param string $output
+     * @return void
+     * @throws Exception
+     */
+    public function endMergeTransaction(string $output = ""): void
+    {
+        $this->saveTo($this->transactionPdf, $output);
+        $this->transactionPdf->Close();
     }
 
     /**
