@@ -164,6 +164,7 @@ class SuperPDF
     public function extractPageRange(int $first, int $last, string $path): void
     {
         $pdf = new \setasign\Fpdi\Fpdi();
+        $pdf->SetAutoPageBreak(false);
         $pdf->setSourceFile($this->file);
 
         for ($i = $first; ($i <= $last); $i++) {
@@ -191,6 +192,7 @@ class SuperPDF
     public function extractPageList(array $list, string $path): void
     {
         $pdf = new \setasign\Fpdi\Fpdi();
+        $pdf->SetAutoPageBreak(false);
         $pdf->setSourceFile($this->file);
 
         foreach ($list as $page) {
@@ -275,6 +277,7 @@ class SuperPDF
     public function insertPages(string $fileToInsert, int $location, string $output = ""): void
     {
         $pdf = new \setasign\Fpdi\Fpdi();
+        $pdf->SetAutoPageBreak(false);
         $sourcePageCount = $pdf->setSourceFile($this->file);
 
         for ($i = 1; ($i <= $sourcePageCount); $i++) {
@@ -323,7 +326,7 @@ class SuperPDF
     }
 
     /**
-     * @param Adds a background to the document
+     * @brief Adds a background to the document
      * @param string $backgroundPdf The path to the background PDF file
      * @param int $location The page number or one of the class constants
      * @param string $output The output file path. If empty, the original file will be overwriten
@@ -340,6 +343,7 @@ class SuperPDF
     public function addBackground(string $backgroundPdf, int $location, string $output = ""): void
     {
         $pdf = new \setasign\Fpdi\Fpdi();
+        $pdf->SetAutoPageBreak(false);
         $sourcePageCount = $pdf->setSourceFile($this->file);
 
         for ($i = 1; ($i <= $sourcePageCount); $i++) {
@@ -398,6 +402,7 @@ class SuperPDF
     public function writeText(string $text, array $params, int $location, string $output = ""): void
     {
         $pdf = new \setasign\Fpdi\Fpdi();
+        $pdf->SetAutoPageBreak(false);
         $sourcePageCount = $pdf->setSourceFile($this->file);
 
         for ($i = 1; ($i <= $sourcePageCount); $i++) {
@@ -463,6 +468,7 @@ class SuperPDF
     public function writeMultiCellText(string $text, array $params, int $location, string $output = ""): void
     {
         $pdf = new \setasign\Fpdi\Fpdi();
+        $pdf->SetAutoPageBreak(false);
         $sourcePageCount = $pdf->setSourceFile($this->file);
 
         for ($i = 1; ($i <= $sourcePageCount); $i++) {
@@ -552,6 +558,7 @@ class SuperPDF
             $pdf->setPrintFooter(false);
         } else {
             $pdf = new \setasign\Fpdi\Fpdi();
+            $pdf->SetAutoPageBreak(false);
         }
 
         $sourcePageCount = $pdf->setSourceFile($this->file);
